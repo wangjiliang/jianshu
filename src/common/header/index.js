@@ -4,11 +4,40 @@ import { connect } from 'react-redux'
 import { actionCreators } from './store'
 import { actionCreators as loginCreators } from '../../pages/login/store'
 import { Link } from 'react-router-dom'
-import { HeaderWrapper,Logo,Nav,NavItem,NavSearch,Button,Addition, SearchWrapper } from './style'
+import { HeaderWrapper,
+  Logo,Nav,NavItem,
+  NavSearch,SearchInfo,SearchInfoTitle,SearchInfoSwitch,SearchInfoItem,
+  SearchInfoList,
+  Button,
+  Addition,
+  SearchWrapper
+ } from './style'
 
 class Header extends PureComponent {
   render (){
-    const {login,focused,handleInputFocuse,handleInputBlur,logout} = this.props;
+    const {login, focused, list, handleInputFocuse,handleInputBlur,logout} = this.props;
+    const getListArea = (show) => {
+      if(show){
+        return (
+          <SearchInfo>
+            <SearchInfoTitle>
+              热门搜索
+              <SearchInfoSwitch>换一批</SearchInfoSwitch>
+            </SearchInfoTitle>
+            <SearchInfoList>
+              <SearchInfoItem>教育</SearchInfoItem>
+              {
+                list.map( (item) => {
+                  return <SearchInfoItem key={item}>{item}</SearchInfoItem>
+                })
+              }
+            </SearchInfoList>
+          </SearchInfo>
+        )
+      } else {
+        return null
+      }
+    }
     return (
       <HeaderWrapper>
         <Link to="/">
@@ -31,6 +60,7 @@ class Header extends PureComponent {
               />
             </CSSTransition>
             <span className={focused ? 'focused iconfont':'iconfont'}>&#xe62b;</span>
+            { getListArea(focused) }
           </SearchWrapper>
           <Addition>
             <Button className="writting">
@@ -51,6 +81,7 @@ const mapState = (state) => {
     // focused:state.header.get('focused') 比较别扭使用下面的方法获取
     // focused: state.get('header').get('focused')  //常规写法
     focused: state.getIn(['header','focused']),  //简写
+    list: state.getIn(['header','list']),
     login:state.getIn(['login','login'])
   }
 }
@@ -58,6 +89,7 @@ const mapState = (state) => {
 const mapDispatch = (dispatch) => {
   return {
     handleInputFocuse(){
+      dispatch(actionCreators.getList())
       dispatch(actionCreators.searchFocus())
     },
     handleInputBlur(){
