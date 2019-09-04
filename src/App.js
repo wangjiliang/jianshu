@@ -1,7 +1,10 @@
 import React, { Component} from 'react';
 import { Provider } from 'react-redux';
 import { Route, BrowserRouter } from 'react-router-dom';
+
 import { GlobalStyle } from './style';
+import { IconFont } from './statics/iconfont/iconfont';
+
 import Header from './common/header';
 import store from './store';
 import Home from './pages/home';
@@ -14,6 +17,7 @@ class App extends Component {
       <Provider store={store}>
         <div>
           <GlobalStyle/>
+          <IconFont/>
           <BrowserRouter>
             <Header/>
             <Route path='/' exact component={Home}></Route>
