@@ -15,22 +15,33 @@ import { HeaderWrapper,
 
 class Header extends PureComponent {
   render (){
-    const {login, focused, list, handleInputFocuse,handleInputBlur,logout} = this.props;
+    const {
+      login, focused, list, page, totalPage, mouseIn,
+      handleMouseEnter, handleMouseLeave, handleChangePage,
+      handleInputFocuse,handleInputBlur,logout
+    } = this.props;
+    const newList = list.toJS(); //toJS方法是将immutable(不支持list[i]这种方法) 对象转为普通对象
+    const pageList = [];
+    if (newList.length) {
+      for(let i= (page-1) * 10; i < page * 10; i++){
+        pageList.push(
+          <SearchInfoItem key={newList[i]}>{newList[i]}</SearchInfoItem>
+        )
+      }
+    }
     const getListArea = (show) => {
-      if(show){
+      if(show || mouseIn){
         return (
-          <SearchInfo>
+          <SearchInfo onMouseEnter={ handleMouseEnter } onMouseLeave={ handleMouseLeave }>
             <SearchInfoTitle>
               热门搜索
-              <SearchInfoSwitch>换一批</SearchInfoSwitch>
+              <SearchInfoSwitch onClick={ () => {handleChangePage(page, totalPage, this.spinIcon)} }>
+              <span ref={(icon) => {this.spinIcon = icon}} className="iconfont spin">&#xe851;</span>
+                换一批
+              </SearchInfoSwitch>
             </SearchInfoTitle>
             <SearchInfoList>
-              <SearchInfoItem>教育</SearchInfoItem>
-              {
-                list.map( (item) => {
-                  return <SearchInfoItem key={item}>{item}</SearchInfoItem>
-                })
-              }
+              { pageList }
             </SearchInfoList>
           </SearchInfo>
         )
@@ -55,11 +66,11 @@ class Header extends PureComponent {
           <SearchWrapper>
             <CSSTransition in={focused} timeout={200} classNames="slide">
               <NavSearch className={focused ? 'focused':''}
-              onFocus={handleInputFocuse}
+              onFocus={() => { handleInputFocuse(list)}}
               onBlur={handleInputBlur}
               />
             </CSSTransition>
-            <span className={focused ? 'focused iconfont':'iconfont'}>&#xe62b;</span>
+            <span className={focused ? 'focused iconfont zoom':'iconfont zoom'}>&#xe62b;</span>
             { getListArea(focused) }
           </SearchWrapper>
           <Addition>
@@ -81,19 +92,44 @@ const mapState = (state) => {
     // focused:state.header.get('focused') 比较别扭使用下面的方法获取
     // focused: state.get('header').get('focused')  //常规写法
     focused: state.getIn(['header','focused']),  //简写
+    mouseIn: state.getIn(['header','mouseIn']),
     list: state.getIn(['header','list']),
+    page: state.getIn(['header', 'page']),
+    totalPage: state.getIn(['header', 'totalPage']),
     login:state.getIn(['login','login'])
   }
 }
 
 const mapDispatch = (dispatch) => {
   return {
-    handleInputFocuse(){
-      dispatch(actionCreators.getList())
+    handleInputFocuse(list){
+      if (list.size === 0) {
+        dispatch(actionCreators.getList())
+      }
       dispatch(actionCreators.searchFocus())
     },
     handleInputBlur(){
       dispatch(actionCreators.searchBlur())
+    },
+    handleMouseEnter() {
+      dispatch(actionCreators.mouseEnter())
+    },
+    handleMouseLeave() {
+      dispatch(actionCreators.mouseLeave())
+    },
+    handleChangePage(page, totalPage, icon) {
+      let angel = icon.style.transform.replace(/[^0-9]/ig, '')
+      if (angel) {
+        angel = parseInt(angel)
+      } else {
+        angel = 0
+      }
+      icon.style.transform = `rotate(${angel+360}deg)`
+      if (page < totalPage) {
+        dispatch(actionCreators.changePage( page + 1))
+      } else {
+        dispatch(actionCreators.changePage(1))
+      }
     },
     logout(){
       dispatch(loginCreators.logout())

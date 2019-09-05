@@ -11,11 +11,24 @@ const changeList = (data) => ({
 })
 
 export const searchFocus = () => ({
-  type:actionTypes.SEARCH_FOCUS
+  type :actionTypes.SEARCH_FOCUS
 })
 
 export const searchBlur = () => ({
-  type:actionTypes.SEARCH_BLUR
+  type: actionTypes.SEARCH_BLUR
+})
+
+export const mouseEnter = () => ({
+  type: actionTypes.MOUSE_ENTER
+})
+
+export const mouseLeave = () => ({
+  type: actionTypes.MOUSE_LEAVE
+})
+
+export const changePage = (page) => ({
+  type: actionTypes.CHANGE_PAGE,
+  page
 })
 
 export const getList = () => {
