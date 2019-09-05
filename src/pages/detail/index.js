@@ -1,10 +1,16 @@
 
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
+import { connect } from 'react-redux'
+import { withRouter } from 'react-router-dom'
 
-class Detail extends Component {
+class Detail extends PureComponent {
   render(){
+    console.log(this.props.match.params.id)
     return <div>detail</div>
   }
 }
 
-export default Detail;
+const mapState = (state) => ({
+
+})
+export default connect(mapState)(withRouter(Detail));
